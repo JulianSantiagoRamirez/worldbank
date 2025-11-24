@@ -91,6 +91,110 @@ replace imp=. if check_tr==.
 ```
 
 
+## 8. Polynomial Terms
+
+Create squares and cubes for the capital variables and import weighted by specific exchange rate
+
+```stata
+foreach var of varlist capital imp_xr kstock{
+gen `var'2=`var'*`var'
+gen `var'3=`var'*`var'*`var'
+}
+```
+Interaction between capital variables and imp_xr
+
+```stata
+foreach var of varlist capital imp_xr{
+gen `var'kstock=`var'*kstock
+gen `var'2kstock=`var'2*kstock
+gen `var'kstock2=`var'*kstock2
+}
+
+gen capitalimp_xrkstock=capital*imp_xr*kstock
+```
+
+## 9. Baseline Regressions
+
+-  Baseline Regression
+-  Separate regressions for proc=0 vs proc=1
+-  Adding controls
+
+```stata
+reghdfe exp imp, absorb(firmid year)
+....
+```
+
+## 10. Theta estimation by industry
+
+Run industry-specific regressions and compute theta = β_imp + β_procimp.
+
+```stata
+sum ind
+local max=_result(6)
+local i=1
+while `i'<=`max'{
+reghdfe exp imp procimp capital* imp_xr* kstock* if ind==`i', ...
+lincom _b[imp]+_b[procimp]-1
+local i=`i'+1
+}
+```
+
+## 11. OP estimation
+
+Create firmxproc panel
+
+```stata
+egen fid=group(firmid proc)
+gen dvarop=.
+gen thetaop=.
+```
+Loop over industries. Compute OP-based theta 
+```stata
+reghdfe exp imp capital* imp_xr* kstock* ...
+replace thetaop=(_b[imp])
+replace dvarop=(exporiginal-thetaop*imporiginal)/exporiginal
+replace dvarop=. if dvarop<0
+```
+
+## 12. ACF estimation
+
+Perform ACF estimation, separating by proc and loops over industries.
+```stata
+gen inv=capital
+acfest exp , free(imp) state(kstock imp_xr) proxy(inv) i(fid) t(year) invest nbs(50) robust
+```
+
+## 13. Collapse to industry-year averages (weighted)
+
+Weighted averages by industry-year.
+
+
+```stata
+egen expindacf=sum(exporiginal) if dvaracf~=., by(indyr proc)
+gen expshacf=exporiginal/expindacf
+gen wdvaracf=expshacf*dvaracf
+egen avedvaracf=sum(wdvaracf), by(indyr proc)
+replace dvaracf=avedvaracf if dvaracf==.
+```
+
+
+# Key Variables from the dataset
+
+- *firmid*:Firm identifier. Critical for panel structure.
+- *year*:	Year of observation.
+- *exp*:	Exports (value).
+- *imp*:	Imports (value).
+- *capital*:	Firm-level capital import.
+- *kstock90 / kstock95*:	Capital sotck depreciate rate 10%/5%.
+- *imp_xr*:	Imports adjusted by exchange rate.
+- *proc*:	Processing trade dummy.
+- *switch*:	Indicator of firms change regime across year.
+- *group*:	Industry group string.
+- *procimp*:	Interaction: proc * imp (created later).
+- *impvariety*:	Formerly scope_imp_hs8 = import variety count.
+- *ind*:	Numeric industry identifier (after egen).
+- *indyr*:	Industry-year group (used for clustering).
+
 
 
 
