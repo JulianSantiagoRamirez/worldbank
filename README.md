@@ -180,20 +180,20 @@ replace dvaracf=avedvaracf if dvaracf==.
 
 # Key Variables from the dataset
 
-- *firmid*:Firm identifier. Critical for panel structure.
-- *year*:	Year of observation.
-- *exp*:	Exports (value).
-- *imp*:	Imports (value).
-- *capital*:	Firm-level capital import.
-- *kstock90 / kstock95*:	Capital sotck depreciate rate 10%/5%.
-- *imp_xr*:	Imports adjusted by exchange rate.
-- *proc*:	Processing trade dummy.
-- *switch*:	Indicator of firms change regime across year.
-- *group*:	Industry group string.
-- *procimp*:	Interaction: proc * imp (created later).
-- *impvariety*:	Formerly scope_imp_hs8 = import variety count.
-- *ind*:	Numeric industry identifier (after egen).
-- *indyr*:	Industry-year group (used for clustering).
+- **firmid**: Firm identifier. Critical for panel structure.
+- **year**:	Year of observation.
+- **exp**:	Exports (value).
+- **imp**:	Imports (value).
+- **capital**:	Firm-level capital import.
+- **kstock90 / kstock95**:	Capital sotck depreciate rate 10%/5%.
+- **imp_xr**:	Imports adjusted by exchange rate.
+- **proc**:	Processing trade dummy.
+- **switch**:	Indicator of firms change regime across year.
+- **group**:	Industry group string.
+- **procimp**:	Interaction: proc * imp (created later).
+- **impvariety**:	Formerly scope_imp_hs8 = import variety count.
+- **ind**:	Numeric industry identifier (after egen).
+- **indyr**:	Industry-year group (used for clustering).
 
 
 
